@@ -2,12 +2,13 @@
 
 //const URL = "http://localhost:8080/login";
 const URL = "http://10.9.72.246:8080/login";
+const ajaxMode = false;
 
 class LoginForm extends React.Component{
 	
 	constructor(props){
 		super(props);
-		this.state = {login: "", password: "", isLoginEmpty: false, isPasswordEmpty: false};
+		this.state = {login: "", password: "", isLoginEmpty: false, isPasswordEmpty: false, ajaxMode: ajaxMode};
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleLoginChange = this.handleLoginChange.bind(this);
 		this.handlePasswordChange = this.handlePasswordChange.bind(this);
@@ -16,10 +17,25 @@ class LoginForm extends React.Component{
 	handleSubmit = async (event) => {
 		event.preventDefault();
 		this.setState({isLoginEmpty: this.state.login === "", isPasswordEmpty: this.state.password === ""});
-		if (!this.state.isLoginEmpty && !this.state.isPasswordEmpty){
+		if (this.state.login !== "" && this.state.password !== ""){
 			const body = {login: this.state.login, password: this.state.password};
-			const response = await fetch(URL, {method: "POST", mode: "cors", headers: {"Content-Type": "application/json;charset=utf-8"}, body: JSON.stringify(body)});
-			console.log(response);
+			if (!this.state.ajaxMode){
+				try{
+					const response = await fetch(URL, {method: "POST", mode: "cors", headers: {"Content-Type": "application/json;charset=utf-8"}, body: JSON.stringify(body)});
+					console.log(response);
+				}
+				catch(error){
+					console.log("Возникла проблема с fetch-запросом");
+				}
+				
+			}
+			else{
+				const xhr = new XMLHttpRequest();
+				xhr.open("POST", URL, true);
+				xhr.setRequestHeader("Content-Type", "application/json;charset=utf-8");
+				xhr.onreadystatechange = () => {console.log(xhr)};
+				xhr.send(JSON.stringify(body));
+			}	
 		}	
 	}
 	
@@ -39,7 +55,7 @@ class LoginForm extends React.Component{
 							<div className="col-3 text-center">
 								<label htmlFor="login-input">Логин:</label>
 								<input type="text" id="login-input" className={"form-control"+((this.state.isLoginEmpty) ? " is-invalid" : "")} value={this.state.login} onChange={this.handleLoginChange}/>
-								<div class="invalid-feedback">
+								<div className="invalid-feedback">
 									{(this.state.isLoginEmpty) ? "Введите логин" : ""}
 								</div>
 							</div>
@@ -48,7 +64,7 @@ class LoginForm extends React.Component{
 							<div className="col-3 text-center">
 								<label htmlFor="password-input">Пароль:</label>
 								<input type="password" id="password-input" className={"form-control"+((this.state.isPasswordEmpty) ? " is-invalid" : "")} value={this.state.password} onChange={this.handlePasswordChange}/>
-								<div class="invalid-feedback">
+								<div className="invalid-feedback">
 									{(this.state.isPasswordEmpty) ? "Введите пароль" : ""}
 								</div>
 							</div>
