@@ -1,35 +1,42 @@
 ﻿import React from 'react';
 import LoginForm from './LoginForm';
+import ParamsBar from './ParamsBar';
 
-const urlIP = "10.9.72.246";
-const urlPort = "8080";
-const urlMethod = "login";
-const contentType = "application/json";
-const localhostMode = false;
-const ajaxMode = false;
+const urlIPDefault = "10.9.72.246";
+const urlPortDefault = "8080";
+const urlMethodDefault = "login";
+const contentTypeDefault = "application/json";
+const ajaxModeDefault = "Fetch";
 
 class StartPage extends React.Component{
 	constructor(props){
 		super(props);
-		this.state = {login: "", password: "",  localhostMode: localhostMode, ajaxMode: ajaxMode};
+		this.state = {login: "", 
+					  password: "", 
+					  ajaxMode: localStorage.getItem("ajaxMode") || ajaxModeDefault, 
+					  urlIP: localStorage.getItem("urlIP") || urlIPDefault, 
+					  urlPort: localStorage.getItem("urlPort") || urlPortDefault, 
+					  urlMethod: localStorage.getItem("urlMethod") || urlMethodDefault, 
+					  contentType: localStorage.getItem("contentType") || contentTypeDefault};
 		this.sendRequest = this.sendRequest.bind(this);
-		this.setLogin = this.setLogin.bind(this);
-		this.setPassword = this.setPassword.bind(this);
+		this.setStateField = this.setStateField.bind(this);
+		this.saveDataInLocalStorage  = this.saveDataInLocalStorage.bind(this);
 	}
 	
 	sendRequest = async () => {
-		const URL = "http://" + ((this.state.localhostMode) ? "localhost" : urlIP) + ((urlPort !== "") ? ":" + urlPort : "") + ((urlMethod !== "") ? "/" + urlMethod : "");
+		console.log(this.state);
+		const URL = "http://" + this.state.urlIP + ((this.state.urlPort !== "") ? ":" + this.state.urlPort : "") + ((this.state.urlMethod !== "") ? "/" + this.state.urlMethod : "");
 		const body = {login: this.state.login, password: this.state.password};
-		if (this.state.ajaxMode){
+		if (this.state.ajaxMode === "XMLHttpRequest"){
 			const xhr = new XMLHttpRequest();
 			xhr.open("POST", URL, true);
-			xhr.setRequestHeader("Content-Type", contentType +";charset=utf-8");
+			xhr.setRequestHeader("Content-Type", this.state.contentType +";charset=utf-8");
 			xhr.onreadystatechange = () => {console.log(xhr)};
 			xhr.send(JSON.stringify(body));
 		}
 		else{
 			try{
-				const response = await fetch(URL, {method: "POST", mode: "cors", headers: {"Content-Type": contentType +";charset=utf-8"}, body: JSON.stringify(body)});
+				const response = await fetch(URL, {method: "POST", mode: "cors", headers: {"Content-Type": this.state.contentType +";charset=utf-8"}, body: JSON.stringify(body)});
 				console.log(response);
 			}
 			catch(error){
@@ -38,18 +45,21 @@ class StartPage extends React.Component{
 		}	
 	}
 	
-	setLogin = (login) => {
-		this.setState({login: login});
+	saveDataInLocalStorage = () => {
+		const params = ['ajaxMode','urlIP','urlPort','urlMethod','contentType'];
+		params.forEach(prop => localStorage.setItem([prop], this.state[prop]));
+		
 	}
 	
-	setPassword = (password) => {
-		this.setState({password: password});
+	setStateField = (field, val) => {
+		this.setState({[field]: val});
 	}
 	
 	render(){
 		return(
 			<div>
-				<LoginForm login={this.state.login} password={this.state.password} sendRequest={this.sendRequest} setLogin={this.setLogin} setPassword={this.setPassword}/>
+				<ParamsBar ajaxMode={this.state.ajaxMode} setStateField={this.setStateField} urlIP={this.state.urlIP} urlIPDefault={urlIPDefault} urlPort={this.state.urlPort} urlMethod={this.state.urlMethod} contentType={this.state.contentType} saveData={this.saveDataInLocalStorage}/>
+				<LoginForm login={this.state.login} password={this.state.password} sendRequest={this.sendRequest} setStateField={this.setStateField} />
 			</div>
 		)
 	}

@@ -20,12 +20,12 @@ class LoginForm extends React.Component{
 	}
 	
 	handleLoginChange = (event) => {
-		this.props.setLogin(event.target.value);
+		this.props.setStateField("login", event.target.value);
 		this.setState({isLoginEmpty: ((this.state.isLoginEmpty && event.target.value !== "") ? false : this.state.isLoginEmpty)});
 	}
 	
 	handlePasswordChange = (event) => {
-		this.props.setPassword(event.target.value);
+		this.props.setStateField("password", event.target.value);
 		this.setState({isPasswordEmpty: ((this.state.isPasswordEmpty && event.target.value !== "") ? false : this.state.isPasswordEmpty)});
 	}
 	
