@@ -34,7 +34,7 @@ class LoginForm extends React.Component{
 				<div className="container">
 					<form onSubmit={this.handleSubmit}>
 						<div className="row mt-3 justify-content-center">
-							<div className="col-3 text-center">
+							<div className="col-3 text-center h6">
 								<label htmlFor="login-input">Логин:</label>
 								<input type="text" id="login-input" className={"form-control"+((this.state.isLoginEmpty) ? " is-invalid" : "")} value={this.props.login} onChange={this.handleLoginChange}/>
 								<div className="invalid-feedback">
@@ -43,7 +43,7 @@ class LoginForm extends React.Component{
 							</div>
 						</div>
 						<div className="row mt-3 justify-content-center">
-							<div className="col-3 text-center">
+							<div className="col-3 text-center h6">
 								<label htmlFor="password-input">Пароль:</label>
 								<input type="password" id="password-input" className={"form-control"+((this.state.isPasswordEmpty) ? " is-invalid" : "")} value={this.props.password} onChange={this.handlePasswordChange}/>
 								<div className="invalid-feedback">
