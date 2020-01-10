@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import {Provider} from 'react-redux';
-import {Router, Switch, Route} from 'react-router-dom';
+import {Router, Route} from 'react-router-dom';
 import store from './store/store';
 import history from './store/history';
 import HomePage from './components/HomePage';
