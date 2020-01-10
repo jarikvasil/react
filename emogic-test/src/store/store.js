@@ -6,17 +6,21 @@ const urlMethodDefault = "login";
 const contentTypeDefault = "application/json";
 const requestModeDefault = "Fetch";
 
+const getRequestParamsFromStorage = (state) => {
+	state.requestMode = localStorage.getItem("EmogicTestRequestMode") || requestModeDefault;
+	state.urlIP = localStorage.getItem("EmogicTestURLIP") || urlIPDefault;
+	state.urlPort = localStorage.getItem("EmogicTestURLPort") || urlPortDefault;
+	state.urlMethod = localStorage.getItem("EmogicTestURLMethod") || urlMethodDefault;
+	state.contentType = localStorage.getItem("EmogicTestContentType") || contentTypeDefault;
+}
+
 const requestParamsReducer = (state, action) => {
 	let newState = {};
 	
 	if (state !== undefined)
 		Object.assign(newState, state);
 	else{
-		newState.requestMode = localStorage.getItem("EmogicTestRequestMode") || requestModeDefault;
-		newState.urlIP = localStorage.getItem("EmogicTestURLIP") || urlIPDefault;
-		newState.urlPort = localStorage.getItem("EmogicTestURLPort") || urlPortDefault;
-		newState.urlMethod = localStorage.getItem("EmogicTestURLMethod") || urlMethodDefault;
-		newState.contentType = localStorage.getItem("EmogicTestContentType") || contentTypeDefault;
+		getRequestParamsFromStorage(newState);
 	}
 		
 	if (action.type === "SET_REQUEST_MODE"){
@@ -47,6 +51,10 @@ const requestParamsReducer = (state, action) => {
 		localStorage.setItem("EmogicTestContentType", state.contentType);
 	}
 	
+	if (action.type === "UNDO_REQUEST_PARAMS_CHANGES"){
+		getRequestParamsFromStorage(newState);
+	}
+		
 	return newState;
 }
 
@@ -56,7 +64,7 @@ const loginParamsReducer = (state, action) => {
 	if (state !== undefined)
 		Object.assign(newState, state);
 	else{
-		newState.login = "";
+		newState.login = sessionStorage.getItem("EmogicTestLogin") || "";
 		newState.password = "";
 		newState.loginError = "";
 		newState.isLoggedOn = sessionStorage.getItem("EmogicTestIsLoggedOn") || "N";

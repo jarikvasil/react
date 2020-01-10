@@ -2,21 +2,26 @@
 import store from '../store/store';
 import history from '../store/history';
 import {connect} from 'react-redux';
-import {Link} from 'react-router-dom';
-
 
 class LoginForm extends React.Component{
 	
 	constructor(props){
 		super(props);
 		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleLoginChange = this.handleLoginChange.bind(this);
-		this.handlePasswordChange = this.handlePasswordChange.bind(this);
 	}
 	
 	componentDidMount(){
 		if (this.props.isLoggedOn === "Y")
 			history.push("/");
+	}
+	
+	handleSuccessLogin = () => {
+		store.dispatch({type: "SET_IS_LOGGED_STATUS", value: "Y"});
+		history.push("/");
+	}
+	
+	handleErrorLogin = (errorText) => {
+		store.dispatch({type: "SET_LOGIN_ERROR", value: errorText});
 	}
 	
 	handleSubmit = async (event) => {
@@ -28,7 +33,17 @@ class LoginForm extends React.Component{
 				const xhr = new XMLHttpRequest();
 				xhr.open("POST", URL, true);
 				xhr.setRequestHeader("Content-Type", this.props.contentType +";charset=utf-8");
-				xhr.onreadystatechange = () => {console.log(xhr)};
+				xhr.onreadystatechange = () => {
+					if (xhr.readyState === 4){
+						console.log(xhr);
+						if (xhr.status === 200){
+							this.handleSuccessLogin();
+						}
+						else{
+							this.handleErrorLogin("Не удалось войти в систему. HTTP-запрос возвращен с кодом: " + xhr.status + ".");
+						}
+					}	
+				};
 				xhr.send(JSON.stringify(body));
 			}
 			else{
@@ -36,12 +51,14 @@ class LoginForm extends React.Component{
 					const response = await fetch(URL, {method: "POST", mode: "cors", headers: {"Content-Type": this.props.contentType +";charset=utf-8"}, body: JSON.stringify(body)});
 					console.log(response);
 					if (response.status === 200){
-						store.dispatch({type: "SET_IS_LOGGED_STATUS", value: "Y"});
-						history.push("/");
+						this.handleSuccessLogin();
+					}
+					else{
+						this.handleErrorLogin("Не удалось войти в систему. Fetch-запрос возвращен с кодом: " + response.status + ".");
 					}
 				}
 				catch(error){
-					store.dispatch({type: "SET_LOGIN_ERROR", value: "Возникла проблема с fetch-запросом: " + error});
+					this.handleErrorLogin("Не удалось войти в систему: " + error + ".");
 				}
 			}	
 		}	
@@ -55,29 +72,31 @@ class LoginForm extends React.Component{
 		store.dispatch({type: "SET_PASSWORD", value: event.target.value})
 	}
 	
+	handleGoToRequestParams = (event) => {
+		history.push("/login/request_params");
+	}
+	
 	render(){
 		return (
-				<div className="container">
-					<div className="row justify-content-start">
-						<Link to='/login/request_params'>Параметры</Link>
+				<div className="container-fluid">
+					<div className="row justify-content-start pl-1 mt-1">
+						<button id="request-params" className="btn btn-sm align-middle btn-outline-secondary" type="button" onClick={this.handleGoToRequestParams}>Параметры</button>
 					</div>
 					<form onSubmit={this.handleSubmit}>
 						<div className="row mt-3 justify-content-center">
-							<div className="col-3 text-center h6">
+							<div className="col-md-auto text-center h6">
 								<label htmlFor="login-input">Логин:</label>
 								<input type="text" id="login-input" className="form-control" value={this.props.login} onChange={this.handleLoginChange} required/>
 							</div>
 						</div>
 						<div className="row mt-3 justify-content-center">
-							<div className="col-3 text-center h6">
+							<div className="col-md-auto text-center h6">
 								<label htmlFor="password-input">Пароль:</label>
 								<input type="password" id="password-input" className="form-control" value={this.props.password} onChange={this.handlePasswordChange} required/>
 							</div>
 						</div>
 						<div className="row mt-3 justify-content-center">
-							<div className="col-1">
-								<input type="submit" id="submit-button" className="btn btn-success" value="Войти"/>
-							</div>
+							<input type="submit" id="submit-button" className="btn btn-success" value="Войти"/>
 						</div>	
 					</form>
 					<div className="row mt-3 justify-content-center text-danger">
