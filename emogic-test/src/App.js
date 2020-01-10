@@ -13,11 +13,9 @@ function App() {
     <div className="App">
 		<Provider store={store}>
 			<Router history={history}>
-				<Switch>
-					<Route exact path='/' component={HomePage}/>
-					<Route exact path='/login' component={LoginForm}/>
-					<Route exact path='/login/request_params' component={RequestParamsBar}/>
-				</Switch>
+				<Route exact path='/' component={HomePage}/>
+				<Route exact path='/login' component={LoginForm}/>
+				<Route exact path='/login/request_params' component={RequestParamsBar}/>
 			</Router>
 		</Provider>
     </div>
