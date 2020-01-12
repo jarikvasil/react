@@ -98,11 +98,7 @@ class RequestParamsBar extends React.Component{
 
 const mapStateToProps = (state) => {
   return {
-    requestMode: state.requestParamsState.requestMode,
-	urlIP: state.requestParamsState.urlIP,
-	urlPort: state.requestParamsState.urlPort,
-	urlMethod: state.requestParamsState.urlMethod,
-	contentType: state.requestParamsState.contentType
+	...state.requestParamsState
   };
 }
 

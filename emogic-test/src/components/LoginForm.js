@@ -109,15 +109,8 @@ class LoginForm extends React.Component{
 
 const mapStateToProps = (state) => {
   return {
-    requestMode: state.requestParamsState.requestMode,
-	urlIP: state.requestParamsState.urlIP,
-	urlPort: state.requestParamsState.urlPort,
-	urlMethod: state.requestParamsState.urlMethod,
-	contentType: state.requestParamsState.contentType,
-	login: state.loginParamsState.login,
-	password: state.loginParamsState.password,
-	loginError: state.loginParamsState.loginError,
-	isLoggedOn: state.loginParamsState.isLoggedOn
+	...state.requestParamsState,
+	...state.loginParamsState
   };
 }
 
