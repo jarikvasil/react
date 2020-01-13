@@ -17,6 +17,7 @@ class LoginForm extends React.Component{
 	
 	handleSuccessLogin = () => {
 		store.dispatch({type: "SET_IS_LOGGED_STATUS", value: "Y"});
+		store.dispatch({type: "SET_LOGIN_ERROR", value: ""});
 		history.push("/");
 	}
 	
