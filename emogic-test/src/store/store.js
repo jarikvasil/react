@@ -1,6 +1,6 @@
 import {createStore, combineReducers} from 'redux';
 
-const urlIPDefault = "10.9.72.246";
+const urlIPDefault = "localhost";
 const urlPortDefault = "8080";
 const urlMethodDefault = "login";
 const contentTypeDefault = "application/json";
@@ -86,6 +86,7 @@ const loginParamsReducer = (state, action) => {
 	
 	if (action.type === "SET_IS_LOGGED_STATUS"){
 		newState.isLoggedOn = action.value;
+		newState.loginError = "";
 		sessionStorage.setItem("EmogicTestIsLoggedOn", action.value);
 	}
 	
