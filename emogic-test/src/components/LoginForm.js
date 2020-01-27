@@ -1,5 +1,4 @@
 ﻿import React, {useEffect} from 'react';
-import store from '../store/store';
 import history from '../store/history';
 import {connect} from 'react-redux';
 import axios from 'axios';
@@ -12,14 +11,6 @@ function LoginForm(props){
 		}, [props.isLoggedOn]
 	);
 	
-	const handleSuccessLogin = () => {
-		store.dispatch({type: "SET_IS_LOGGED_STATUS", value: "Y"});
-	}
-	
-	const handleErrorLogin = (errorText) => {
-		store.dispatch({type: "SET_LOGIN_ERROR", value: errorText});
-	}
-	
 	const handleXMLHttpRequest = (URL, body, contentType) => {
 		const xhr = new XMLHttpRequest();
 		xhr.open("POST", URL, true);
@@ -28,10 +19,10 @@ function LoginForm(props){
 			if (xhr.readyState === 4){
 				console.log(xhr);
 				if (xhr.status === 200){
-					handleSuccessLogin();
+					props.handleSuccessLogin();
 				}
 				else{
-					handleErrorLogin("Не удалось войти в систему. HTTP-запрос возвращен с кодом: " + xhr.status + ".");
+					props.handleErrorLogin("Не удалось войти в систему. HTTP-запрос возвращен с кодом: " + xhr.status + ".");
 				}
 			}	
 		};
@@ -42,19 +33,19 @@ function LoginForm(props){
 		const checkForError = (response) => {
 			console.log(response);
 			if (!response.ok) 
-				handleErrorLogin("Не удалось войти в систему. Fetch-запрос возвращен с кодом: " + response.status + ".");
+				props.handleErrorLogin("Не удалось войти в систему. Fetch-запрос возвращен с кодом: " + response.status + ".");
 			else
-				handleSuccessLogin();
+				props.handleSuccessLogin();
 		};
 		fetch(URL, {method: "POST", mode: "cors", headers: {"Content-Type": contentType}, body: JSON.stringify(body)})
 			.then(checkForError)
-			.catch(error => {handleErrorLogin("Не удалось войти в систему: " + error + ".")});
+			.catch(error => {props.handleErrorLogin("Не удалось войти в систему: " + error + ".")});
 	}
 	
 	const handleAxiosRequest = (URL, body, contentType) => {
 		axios.post(URL, JSON.stringify(body),{headers: {"Content-Type": contentType}})
-			.then(response => {console.log(response); handleSuccessLogin()})
-			.catch(error => {handleErrorLogin("Не удалось войти в систему: " + error + ".")});
+			.then(response => {console.log(response); props.handleSuccessLogin()})
+			.catch(error => {props.handleErrorLogin("Не удалось войти в систему: " + error + ".")});
 	}
 	
 	const handleSubmit = async (event) => {
@@ -73,17 +64,8 @@ function LoginForm(props){
 				case "Axios":
 					handleAxiosRequest(URL, body, contentType);
 					break;
-				
 			}
 		}	
-	}
-	
-	const handleLoginChange = (event) => {
-		store.dispatch({type: "SET_LOGIN", value: event.target.value})
-	}
-	
-	const handlePasswordChange = (event) => {
-		store.dispatch({type: "SET_PASSWORD", value: event.target.value})
 	}
 	
 	const handleGoToRequestParams = (event) => {
@@ -98,14 +80,14 @@ function LoginForm(props){
 				<form onSubmit={handleSubmit}>
 					<div className="row mt-3 justify-content-center">
 						<div className="col-md-auto text-center h6">
-							<label htmlFor="login-input">Логин:</label>
-							<input type="text" id="login-input" className="form-control" value={props.login} onChange={handleLoginChange} required/>
+							<label htmlFor="login">Логин:</label>
+							<input type="text" id="login" className="form-control" value={props.login} onChange={props.handleInputChange} required/>
 						</div>
 					</div>
 					<div className="row mt-3 justify-content-center">
 						<div className="col-md-auto text-center h6">
-							<label htmlFor="password-input">Пароль:</label>
-							<input type="password" id="password-input" className="form-control" value={props.password} onChange={handlePasswordChange} required/>
+							<label htmlFor="password">Пароль:</label>
+							<input type="password" id="password" className="form-control" value={props.password} onChange={props.handleInputChange} required/>
 						</div>
 					</div>
 					<div className="row mt-3 justify-content-center">
@@ -113,7 +95,7 @@ function LoginForm(props){
 					</div>	
 				</form>
 				<div className="row mt-3 justify-content-center text-danger">
-					{props.loginError}
+					{props.loginErrorText}
 				</div>
 			</div>
 	)
@@ -121,9 +103,16 @@ function LoginForm(props){
 
 const mapStateToProps = (state) => {
   return {
-	...state.requestParamsState,
-	...state.loginParamsState
+	...state
   };
 }
 
-export default connect(mapStateToProps)(LoginForm);
+const mapDispatchToProps = (dispatch) => {
+	return {
+		handleInputChange: (event) => {dispatch({type: "SET_PARAM", paramName: event.target.id, paramValue: event.target.value})},
+		handleSuccessLogin: () => {dispatch({type: "SET_PARAM", paramName: "isLoggedOn", paramValue: "Y", sessionStorageFlg: "Y", clearParams: ["loginErrorText"]})},
+		handleErrorLogin: (errorText) => {dispatch({type: "SET_PARAM", paramName: "loginErrorText", paramValue: errorText})}
+	};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);

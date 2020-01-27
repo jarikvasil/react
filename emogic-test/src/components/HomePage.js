@@ -1,5 +1,4 @@
 ﻿import React, {useEffect} from 'react';
-import store from '../store/store';
 import history from '../store/history';
 import {connect} from 'react-redux';
 
@@ -11,11 +10,6 @@ function HomePage(props){
 		}, [props.isLoggedOn]
 	);
 
-	
-	const handleExit = (event) => {
-		store.dispatch({type: "SET_IS_LOGGED_STATUS", value: "N"});
-	}
-	
 	return (
 			<div className="container-fluid">
 				<div className="row justify-content-start align-items-center pl-4 my-3">
@@ -25,7 +19,7 @@ function HomePage(props){
 				</div>	
 				<div className="row justify-content-start align-items-center pl-4 my-3">
 					<div className="col-md-auto">
-						<input type="button" id="exit" className="btn btn-success" value="Выйти из системы" onClick={handleExit}/>
+						<input type="button" id="exit" className="btn btn-success" value="Выйти из системы" onClick={props.handleExit}/>
 					</div>
 				</div>
 			</div>
@@ -34,9 +28,15 @@ function HomePage(props){
 
 const mapStateToProps = (state) => {
   return {
-	login: state.loginParamsState.login,
-    isLoggedOn: state.loginParamsState.isLoggedOn
+	login: state.login,
+    isLoggedOn: state.isLoggedOn
   };
 }
 
-export default connect(mapStateToProps)(HomePage);
+const mapDispatchToProps = (dispatch) => {
+	return {
+		handleExit: () => dispatch({type: "SET_PARAM", paramName: "isLoggedOn", paramValue: "N", sessionStorageFlg: "Y"})
+	};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
